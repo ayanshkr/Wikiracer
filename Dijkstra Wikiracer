@@ -1,0 +1,69 @@
+def Dijkstra(starting,destination) :
+  import heapq
+  accesses=2
+  visited=set()
+  corre={starting:0}
+  parent={starting:None}
+  Q=[]
+  func=lambda x,y : 1-max(difflib.SequenceMatcher(None,x,y).ratio(),difflib.SequenceMatcher(None,y,x).ratio())
+  heapq.heapify(Q)
+  heapq.heappush(Q,(0,starting))
+  costs={}
+  nothercost={}
+  true_destination=destination
+  if len(destination) == 7 :
+    if destination in retrieve('/wiki/English_language') :
+      parent[destination]='/wiki/English_language'
+      destination = '/wiki/English_language'
+  if len(starting) == 7 :
+    if '/wiki/English_language' in retrieve(starting) :
+      parent['/wiki/English_language']=starting
+      starting = '/wiki/English_language'
+  intersectio=set(retrieve(starting)).intersection(set(retrieve(destination)))
+  for x in intersectio :
+    if x not in corre :
+      costs[x]=0.1*(1-func(destination,x))
+  for key in costs :
+    if costs[key] < 0.05 :
+      accesses+=1
+      if destination in retrieve(key) :
+        nothercost[key]=0
+      else :
+        nothercost[key]=0.4*(1-func(destination,x))
+  while list(Q) :
+    review=heapq.heappop(Q)
+    cost,node=review
+    print(node,cost)
+    if node == destination :
+      break
+    accesses+=1
+    dva=retrieve(node)
+    if destination in dva :
+      parent[destination]=node
+      break
+    for hew in dva :
+      new_node=hew
+      if new_node in costs :
+        path=costs[new_node]
+      elif new_node in nothercost :
+        path=nothercost[new_node]
+      else :
+        path=func(destination,new_node)
+      if new_node == '/wiki/Main_Page' :
+        path=0
+      if new_node not in visited :
+        if new_node in corre :
+          if corre[new_node]>(cost+path) :
+            corre[new_node]=(cost+path)
+            parent[new_node]=node
+            heapq.heappush(Q,((cost+path),new_node))
+        else :
+          corre[new_node]=(cost+path)
+          parent[new_node]=node
+          heapq.heappush(Q,((cost+path),new_node))
+    visited.add(node)
+  oof=[]
+  while true_destination :
+    oof.append(true_destination)
+    true_destination=parent[true_destination]
+  return list(reversed(oof)),accesses
