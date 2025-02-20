@@ -1,0 +1,27 @@
+import asyncio
+def retrieve(string):
+  import urllib.request
+  fp = urllib.request.urlopen('https://wikipedia.org'+string)
+  mybytes = fp.read()
+  mystr = mybytes.decode("utf8")
+  fp.close()
+  html=mystr
+  links = []
+  disallowed = [":", "#", "/", "?"]
+  pointer=-1
+  pointer2=0
+  while True :
+      pointer=pointer2+1
+      pointer=html.find('href="/wiki/',pointer)
+      if pointer == -1 :
+          break
+      pointer2=html.find('"',pointer+12)
+      link=html[pointer+6:pointer2]
+      cancel=False
+      for x in disallowed :
+          if x in link[6:] :
+              cancel=True
+              break
+      if not cancel :
+          links.append(link)
+  return links
